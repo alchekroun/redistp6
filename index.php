@@ -9,9 +9,9 @@ try {
 
     $redis = new Predis\Client(array(
         "scheme" => "tcp",
-        "host" => "SG-TPNOSQL-31571.servers.mongodirector.com",//changer le nom de la base
+        "host" => "localhost",//changer le nom de la base
         "port" => 6379,
-        "password"=>"bsXiEYKjq3AfpKRjuuRheT5ig7nZyZuF"//changer le mot de passe de la base
+        "password"=>""//changer le mot de passe de la base
     ));
 
 }
