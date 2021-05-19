@@ -30,9 +30,9 @@ catch (Exception $e) {
         <div class="container">
             <div class="row">
                 <div class="col-9">
-                    <?php if($_SESSION["online"] != true) { ?>
+                    <?php if($_SESSION["online"] != true) {?>
                         <form action="connexion.php" method="get">
-                            <label for="pseudo">Pseudo : <input type="text" name="pseudo"/></label>
+                            <label for="pseudo">Pseudo : <input type="text" name="pseudo" required/></label>
                             <button type="submit">Add</button>
                         </form>
                     <?php } else {
@@ -54,16 +54,53 @@ catch (Exception $e) {
                 <?php
                     if($redis->exists('mot')){
                 ?>
-                    <div class="col-9">
-
+                    <div class="col-6">
+                        <h3>Mot à découvrir : </h3>
+                        <?php
+                        $lettres = str_split($redis->get('mot'));
+                        echo "<p>";
+                        foreach ($lettres as $char) {
+                            if (in_array($char, $redis->lrange('lettre', 0, -1))){
+                                echo " " . $char . " ";
+                            } else {
+                                echo " _ ";
+                            }
+                            echo "<t>";
+                        }
+                        echo "</p>"; ?>
+                        <form action="proplettre.php" method="get">
+                            <label for="proplettre"> Proposer une lettre :
+                                <input type="text" name="proplettre" pattern="[A-Za-z]" required/>
+                            </label>
+                            <input type="submit">
+                        </form>
+                    </div>
+                    <div class="col-3">
+                        <h3>Nombre d'erreur</h3>
+                        <p>10 erreurs maximum.</p>
+                        <ul>
+                            <?php
+                            for($i = 0; $i < $redis->get('erreur'); $i++) {
+                                echo "<li> X </li>";
+                            } ?>
+                        </ul>
                     </div>
                 <?php
                     } else {
                 ?>
                     <div class="col">
+                        <?php
+                        if(isset($_SESSION["win"]) && $_SESSION["win"]) {
+                            if (isset($_SESSION["lastword"])) {
+                                echo "<p>Le dernier mot trouvé est : " . $_SESSION["lastword"] . "</p>";
+                            }
+                        } else if (isset($_SESSION["win"]) && !$_SESSION["win"]) {
+                            echo "<p>Vous avez perdu !</p>";
+                        }
+                        ?>
                         <p>Il n'y a aucun mot pour le moment, vous pouvez proposer un mot :</p>
                         <form action="proposition.php" method="get">
-                            <input type="text" name="prop"/>
+                            <input type="text" name="prop" pattern="[A-Za-z]*" required/>
                             <input type="submit">
                         </form>
                     </div>

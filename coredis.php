@@ -13,3 +13,13 @@ function get_redis()
         )
     );
 }
+
+function consoleLog($msg) {
+    echo '<script type="text/javascript">' .
+        'console.log(' . $msg . ')</script>';
+}
+
+function alert($msg) {
+    echo '<script type="text/javascript">' .
+        'alert(' . $msg . ')</script>';
+}
