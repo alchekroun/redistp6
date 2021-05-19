@@ -5,18 +5,15 @@ require 'coredis.php';
 
 $redis = get_redis();
 
-$_SESSION["nbLETTRE"] =$redis->lrange('lettre', 0, -1);
-$_SESSION["mot"] =$redis->get('mot');
-
-
+$lettre_minuscule = strtolower($_GET["proplettre"]);
 if(isset($_GET["proplettre"])){
     $lettres = str_split($redis->get('mot'));
-    if (in_array($_GET["proplettre"], $lettres)){
-        if (!in_array($_GET["proplettre"], $redis->lrange('lettre', 0, -1))) {
+    if (in_array($lettre_minuscule, $lettres)){
+        if (!in_array($lettre_minuscule, $redis->lrange('lettre', 0, -1))) {
             $nbOccurence = array_count_values($lettres);
             //Ajout
-            for($i = 0; $i < $nbOccurence[$_GET["proplettre"]]; $i++) {
-                $redis->rpush('lettre', strtolower($_GET["proplettre"]));
+            for($i = 0; $i < $nbOccurence[$lettre_minuscule]; $i++) {
+                $redis->rpush('lettre', strtolower($lettre_minuscule));
             }  
         }
         if(sizeof($redis->lrange('lettre', 0, -1)) == strlen($redis->get('mot'))){
@@ -29,10 +26,10 @@ if(isset($_GET["proplettre"])){
 
         //Ajout
         if ($redis->get('erreur')==1) {
-            $erreur = array($_GET["proplettre"]);
+            $erreur = array($lettre_minuscule);
         }else{
             $erreur = $_SESSION["erreur"];
-            array_push($erreur,$_GET["proplettre"]); 
+            array_push($erreur,$lettre_minuscule); 
         }
         $_SESSION["erreur"] = $erreur;
         if($redis->get('erreur') == 1){
