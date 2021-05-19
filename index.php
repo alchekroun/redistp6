@@ -30,7 +30,7 @@ catch (Exception $e) {
         <div class="container">
             <div class="row">
                 <div class="col-9">
-                    <?php if($_SESSION["online"] != true) {?>
+                    <?php if(!isset($_SESSION["online"])) {?>
                         <form action="connexion.php" method="get">
                             <label for="pseudo">Pseudo : <input type="text" name="pseudo" required/></label>
                             <button type="submit">Add</button>
@@ -70,7 +70,7 @@ catch (Exception $e) {
                         echo "</p>"; ?>
                         <form action="proplettre.php" method="get">
                             <label for="proplettre"> Proposer une lettre :
-                                <input type="text" name="proplettre" pattern="[A-Za-z]" required/>
+                                <input type="text" name="proplettre" required/>
                             </label>
                             <input type="submit">
                         </form>
@@ -80,9 +80,17 @@ catch (Exception $e) {
                         <p>10 erreurs maximum.</p>
                         <ul>
                             <?php
-                            for($i = 0; $i < $redis->get('erreur'); $i++) {
+                            //Ajout
+                             if (isset($_SESSION["erreur"])) {
+                                foreach ($_SESSION["erreur"] as $char) {
+                                    echo "<li>" . $char . "</li>";
+                                }
+                            }
+
+                            /*for($i = 0; $i < $redis->get('erreur'); $i++) {
                                 echo "<li> X </li>";
-                            } ?>
+                            } */
+                            ?>
                         </ul>
                     </div>
                 <?php

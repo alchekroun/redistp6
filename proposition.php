@@ -8,6 +8,9 @@ $redis = get_redis();
 if(isset($_GET["prop"])){
     $redis->set('mot', strtolower($_GET["prop"]));
     $redis->expire('mot', 60);
+    //Ajout
+    $_SESSION["erreur"] = [];
+    $redis->del(['erreur', 'lettre']);
 }
 
 header('Location: index.php');
