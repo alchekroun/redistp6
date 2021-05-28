@@ -9,6 +9,6 @@ $_SESSION["online"] = true;
 $_SESSION["pseudo"] = $_GET["pseudo"];
 
 $redis->rpush('joueur', $_GET["pseudo"]);
-$redis->expire('joueur', 3600);
+$redis->expire('joueur', 1800);
 
 header('Location: index.php');

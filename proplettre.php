@@ -5,40 +5,40 @@ require 'coredis.php';
 
 $redis = get_redis();
 
-$lettre_minuscule = strtolower($_GET["proplettre"]);
+$proplettre = strtolower($_GET["proplettre"]);
 if(isset($_GET["proplettre"])){
     $lettres = str_split($redis->get('mot'));
-    if (in_array($lettre_minuscule, $lettres)){
-        if (!in_array($lettre_minuscule, $redis->lrange('lettre', 0, -1))) {
+
+    if (in_array($proplettre, $lettres)){
+
+        if (!in_array($proplettre, $redis->lrange('lettre', 0, -1))) {
             $nbOccurence = array_count_values($lettres);
-            //Ajout
-            for($i = 0; $i < $nbOccurence[$lettre_minuscule]; $i++) {
-                $redis->rpush('lettre', strtolower($lettre_minuscule));
+
+            // Ajout
+            for($i = 0; $i < $nbOccurence[$proplettre]; $i++) {
+                $redis->rpush('lettre', $proplettre);
+                $redis->expire('lettre', 60 - $redis->ttl('mot'));
             }  
         }
         if(sizeof($redis->lrange('lettre', 0, -1)) == strlen($redis->get('mot'))){
-            $_SESSION["lastword"] = $redis->get('mot');
-            $_SESSION["win"] = true;
-            $redis->del(['mot', 'erreur', 'lettre']);
+            $redis->set("lastword",  $redis->get('mot'));
+            $redis->set("win", true);
+            $redis->del(['mot', 'erreur', 'lettre', 'lettre_fausse']);
         }
     } else {
-        $redis->incr('erreur');
+        if (!in_array($proplettre, $redis->lrange('lettre_fausse', 0, -1))) {
 
-        //Ajout
-        if ($redis->get('erreur')==1) {
-            $erreur = array($lettre_minuscule);
-        }else{
-            $erreur = $_SESSION["erreur"];
-            array_push($erreur,$lettre_minuscule); 
-        }
-        $_SESSION["erreur"] = $erreur;
-        if($redis->get('erreur') == 1){
-            $redis->expire('erreur', 60);
-        } else if($redis->get('erreur') >= 10) {
-            $_SESSION["win"] = false;
-            $redis->del(['mot', 'erreur', 'lettre']);
+            $redis->rpush('lettre_fausse', $proplettre);
+            $redis->expire('lettre_fausse', 60 - $redis->ttl('mot'));
+            unset($_SESSION["message_deja_proposee"]);
+        } else {
+            $_SESSION["message_deja_proposee"] = "Lettre déjà proposée";
         }
 
+        if(sizeof($redis->lrange('lettre_fausse', 0, -1)) >= 10) {
+            $redis->set("win", false);
+            $redis->del(['mot', 'erreur', 'lettre', 'lettre_fausse']);
+        }
     }
 }
 

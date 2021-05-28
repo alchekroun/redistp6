@@ -70,7 +70,7 @@ catch (Exception $e) {
                         echo "</p>"; ?>
                         <form action="proplettre.php" method="get">
                             <label for="proplettre"> Proposer une lettre :
-                                <input type="text" name="proplettre" required/>
+                                <input type="text" name="proplettre" pattern="[A-Za-z]" required/>
                             </label>
                             <input type="submit">
                         </form>
@@ -81,15 +81,14 @@ catch (Exception $e) {
                         <ul>
                             <?php
                             //Ajout
-                             if (isset($_SESSION["erreur"])) {
-                                foreach ($_SESSION["erreur"] as $char) {
-                                    echo "<li>" . $char . "</li>";
-                                }
+                            if(isset($_SESSION["message_deja_proposee"])){
+                                echo "<p>" . $_SESSION["message_deja_proposee"] . "</p>";
                             }
 
-                            /*for($i = 0; $i < $redis->get('erreur'); $i++) {
-                                echo "<li> X </li>";
-                            } */
+                            if($redis->exists('lettre_fausse'))
+                                foreach ($redis->lrange('lettre_fausse', 0, -1) as $char) {
+                                    echo "<li>" . $char . "</li>";
+                                }
                             ?>
                         </ul>
                     </div>
@@ -98,11 +97,9 @@ catch (Exception $e) {
                 ?>
                     <div class="col">
                         <?php
-                        if(isset($_SESSION["win"]) && $_SESSION["win"]) {
-                            if (isset($_SESSION["lastword"])) {
-                                echo "<p>Le dernier mot trouvé est : " . $_SESSION["lastword"] . "</p>";
-                            }
-                        } else if (isset($_SESSION["win"]) && !$_SESSION["win"]) {
+                        if($redis->get("win")) {
+                            echo "<p>Le dernier mot trouvé est : " . $redis->get("lastword") . "</p>";
+                        } else {
                             echo "<p>Vous avez perdu !</p>";
                         }
                         ?>
